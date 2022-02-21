@@ -1,0 +1,53 @@
+Metadata-Version: 2.1
+Name: csbdeep
+Version: 0.6.3
+Summary: CSBDeep - a toolbox for Content-aware Image Restoration (CARE)
+Home-page: http://csbdeep.bioimagecomputing.com/
+Author: Uwe Schmidt, Martin Weigert
+Author-email: uschmidt@mpi-cbg.de, martin.weigert@epfl.ch
+License: BSD 3-Clause License
+Project-URL: Documentation, http://csbdeep.bioimagecomputing.com/doc/
+Project-URL: Repository, https://github.com/csbdeep/csbdeep
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: matplotlib
+Requires-Dist: six
+Requires-Dist: tifffile
+Requires-Dist: tqdm
+Requires-Dist: pathlib2 ; python_version < "3"
+Requires-Dist: backports.tempfile ; python_version < "3.4"
+Requires-Dist: imagecodecs-lite (<=2020) ; python_version < "3.6"
+Requires-Dist: h5py (<3) ; python_version < "3.9"
+Requires-Dist: h5py (>=3) ; python_version >= "3.9"
+Provides-Extra: docs
+Requires-Dist: sphinx ; extra == 'docs'
+Requires-Dist: sphinx-rtd-theme ; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Provides-Extra: tf1
+Requires-Dist: keras (<2.4,>=2.1.2) ; extra == 'tf1'
+
+[![PyPI version](https://badge.fury.io/py/csbdeep.svg)](https://pypi.org/project/csbdeep)
+[![Test](https://github.com/CSBDeep/CSBDeep/workflows/Test/badge.svg)](https://github.com/CSBDeep/CSBDeep/actions?query=workflow%3ATest)
+[![Test (PyPI)](https://github.com/CSBDeep/CSBDeep/workflows/Test%20(PyPI)/badge.svg)](https://github.com/CSBDeep/CSBDeep/actions?query=workflow%3A%22Test+%28PyPI%29%22)
+[![Test (Legacy)](https://github.com/CSBDeep/CSBDeep/workflows/Test%20(Legacy)/badge.svg)](https://github.com/CSBDeep/CSBDeep/actions?query=workflow%3A%22Test+%28Legacy%29%22)
+
+# CSBDeep – a toolbox for CARE
+
+This is the CSBDeep Python package, which provides a toolbox for content-aware restoration of fluorescence microscopy images (CARE), based on deep learning via Keras and TensorFlow.
+
+Please see the documentation at http://csbdeep.bioimagecomputing.com/doc/.
+
+

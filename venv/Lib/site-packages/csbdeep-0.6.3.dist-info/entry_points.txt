@@ -1,0 +1,3 @@
+[console_scripts]
+care_predict = csbdeep.scripts.care_predict:main
+
