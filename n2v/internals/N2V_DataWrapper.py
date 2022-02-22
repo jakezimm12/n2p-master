@@ -38,6 +38,9 @@ class N2V_DataWrapper(RollingSequence):
         self.structN2Vmask = structN2Vmask
         self.n2p_config = n2p_config
 
+        print("shape of large patches: ", self.shape)
+        print("shape of subpatches: ", self.n2p_config.subpatch_shape)
+
         if self.structN2Vmask is not None:
             print("StructN2V Mask is: ", self.structN2Vmask)
 
@@ -65,7 +68,6 @@ class N2V_DataWrapper(RollingSequence):
             if self.dims == 2:
                 self.patch_sampler = self.__n2p_subpatch_sampling2D__
                 self.middle_patch_coords = self.__n2p_get_censored_coords2D__(shape=self.shape, subpatch_shape=self.n2p_config.subpatch_shape)
-                print(self.middle_patch_coords)
             # 3 DIMS NOT SUPPORTED YET
             # elif self.dims == 3:
             #     self.patch_sampler = self.__subpatch_sampling3D__
@@ -189,7 +191,7 @@ class N2V_DataWrapper(RollingSequence):
             for j in range(halfway_subpatch_idx_y, halfway_subpatch_idx_x + subpatch_shape[1]):
                 x_coords.append(i)
                 y_coords.append(j)
-                
+
         return (y_coords, x_coords)
 
     @staticmethod

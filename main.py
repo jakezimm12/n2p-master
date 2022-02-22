@@ -31,8 +31,6 @@ if not os.path.isdir('./data'):
 # with zipfile.ZipFile(zipPath, 'r') as zip_ref:
 #         zip_ref.extractall("data")
 
-print("1")
-
 X = np.load('data/BSD68_reproducibility_data/train/DCNN400_train_gaussian25.npy')
 X_val = np.load('data/BSD68_reproducibility_data/val/DCNN400_validation_gaussian25.npy')
 # Note that we do not round or clip the noisy data to [0,255]
@@ -40,8 +38,6 @@ X_val = np.load('data/BSD68_reproducibility_data/val/DCNN400_validation_gaussian
 # uncomment the following lines.
 # X = np.round(np.clip(X, 0, 255.))
 # X_val = np.round(np.clip(X_val, 0, 255.))
-
-print("2")
 
 # Adding channel dimension
 X = X[..., np.newaxis]
@@ -58,22 +54,18 @@ plt.subplot(1,2,2)
 plt.imshow(X_val[0,...,0], cmap='gray')
 plt.title('Validation Patch');
 
-print("3")
-
-n2v_patch_shape=(64, 64)
+n2v_patch_shape=(180, 180)
 
 config = N2VConfig(X, unet_kern_size=3, 
                    train_steps_per_epoch=2, train_epochs=200, train_loss='mse', batch_norm=True, 
-                   train_batch_size=128, n2v_perc_pix=0.198, 
+                   train_batch_size=128, n2v_perc_pix=0.198, n2v_patch_shape=n2v_patch_shape,
                    unet_n_first = 96,
                    unet_residual = True,
-                   n2v_manipulator='uniform_withCP', n2v_neighborhood_radius=2,
+                   n2v_manipulator='normal_additive', n2v_neighborhood_radius=5,
                    single_net_per_channel=False)
 
 # Let's look at the parameters stored in the config-object.
 vars(config)
-
-print("4")
 
 # a name used to identify the model
 model_name = 'BSD68_reproducability_5x5'
@@ -81,24 +73,18 @@ model_name = 'BSD68_reproducability_5x5'
 basedir = 'models'
 
 #Create Noise2Patch configuration
-n2p_config = N2PConfig(tuple(i//8 for i in n2v_patch_shape))
+n2p_config = N2PConfig(tuple(i//9 for i in n2v_patch_shape))
 
 # We are now creating our network model.
 model = N2V(config, model_name, n2p_config, basedir=basedir)
 model.prepare_for_training(metrics=())
 
-print("5")
-
 # We are ready to start training now.
 history = model.train(X, X_val)
-
-print("6")
 
 # print(sorted(list(history.history.keys())))
 # plt.figure(figsize=(16,5))
 # plot_history(history,['loss','val_loss']);
-
-print("7")
 
 groundtruth_data = np.load('data/BSD68_reproducibility_data/test/bsd68_groundtruth.npy', allow_pickle=True)
 
@@ -117,8 +103,6 @@ def PSNR(gt, img):
 # because the loss is computed to noisy target pixels.
 model.load_weights('weights_best.h5')
 
-print("8")
-
 pred = []
 psnrs = []
 for gt, img in zip(groundtruth_data, test_data):
@@ -126,13 +110,9 @@ for gt, img in zip(groundtruth_data, test_data):
     pred.append(p_)
     psnrs.append(PSNR(gt, p_))
 
-print("9")
-
 psnrs = np.array(psnrs)
 
 print("PSNR (without test-time augmentation):", np.round(np.mean(psnrs), 2))
-
-print("10")
 
 pred = []
 psnrs = []
