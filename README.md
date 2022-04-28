@@ -20,4 +20,22 @@ image during training. Each random patch has an associated weight based on its
 color and distance from the censored patch. A color and position more similar to
 the censored patch results in a higher weight.
 
-Read the research paper to learn more about how N2P works.
+N2P compiles many subpatches into a large patch. One possible structure is a
+9 × 9 grid. The "censored," central subpatch outlined in blue is the target patch
+the network is trying to predict during training. The random subpatches outlined
+in red are given to the network to aid in the prediction of the target patch.
+
+![mosaic](https://user-images.githubusercontent.com/65970260/165851215-3851fac2-470b-4037-a62c-0a52e69b93cc.png)
+
+Weights are calculated for each subpatch in the compilation that makes up the
+large patch described above. A weight channel of the same shape as the large
+patch is added "behind" the large patch. Each pixel in the weight channel contains
+the weight of its corresponding pixel’s subpatch. Note that the central patch is
+actually censored. The weight of 1.00 is symbolic to show that the target subpatch
+has exactly the same color and position in the original graph as itself.
+
+![new_add_weights](https://user-images.githubusercontent.com/65970260/165851750-cb22d12b-47d6-4c1b-abaf-3d5cfd7399ed.png)
+
+Read the research paper to learn more about how N2P works: [N2P_Research_Paper.pdf](https://github.com/jakezimm12/n2p-master/files/8586811/N2P_Research_Paper.pdf).
+
+
