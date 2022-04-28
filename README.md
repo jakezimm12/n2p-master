@@ -24,17 +24,21 @@ the censored patch results in a higher weight.
 
 ## General Overview of Procedure
 
-N2P compiles many subpatches into a large patch. One possible structure is a
-9 × 9 grid. The "censored," central subpatch outlined in blue is the target patch
-the network is trying to predict during training. The random subpatches outlined
-in red are given to the network to aid in the prediction of the target patch.
+We adapt N2V’s blind-spot network to a “blind-subpatch network” in which random
+subpatches from the entire image are arranged around the central, target subpatch.
+To align our language with the explanation of our experiment, we will refer to
+each of these patches as subpatches that form the larger patch that is our receptive
+field. For example, say we select a subpatch size of 10 × 10 pixels to be our target
+subpatch and eight other randomly selected 10 × 10 subpatches to be our predictive
+subpatches. We would arrange these subpatches into a larger 30 × 30 patch that has
+three rows and three columns of subpatches with the censored patch in the center.
 
 ![mosaic](https://user-images.githubusercontent.com/65970260/165851215-3851fac2-470b-4037-a62c-0a52e69b93cc.png)
 
 Weights are calculated for each subpatch in the compilation that makes up the
 large patch described above. A weight channel of the same shape as the large
 patch is added "behind" the large patch. Each pixel in the weight channel contains
-the weight of its corresponding pixel’s subpatch. Note that the central patch is
+the weight of its corresponding pixel’s subpatch. Note that the central, target subpatch is
 actually censored. The weight of 1.00 is symbolic to show that the target subpatch
 has exactly the same color and position in the original graph as itself.
 
