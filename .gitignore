@@ -33,3 +33,5 @@ history/
 .pydevproject
 test.yml
 test*.yml
+checkpoints/extra_checkpoints
+main2.py

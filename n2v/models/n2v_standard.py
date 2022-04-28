@@ -111,6 +111,10 @@ class N2V(CARE):
 
 
     def _build(self):
+        print("n_dim=", self.config.n_dim)
+        print("n_channel_out=", self.config.n_channel_out)
+        print("input shape", self.config.unet_input_shape)
+        print("sing net", self.config.single_net_per_channel)
         return self._build_unet(
             n_dim=self.config.n_dim,
             n_channel_out=self.config.n_channel_out,
@@ -227,8 +231,13 @@ class N2V(CARE):
         means = np.array([float(mean) for mean in self.config.means], ndmin=len(X.shape), dtype=np.float32)
         stds = np.array([float(std) for std in self.config.stds], ndmin=len(X.shape), dtype=np.float32)
 
-        X = self.__normalize__(X, means, stds)
-        validation_X = self.__normalize__(validation_X, means, stds)
+        # Assumes greyscale
+        if self.n2p_config:
+            X[..., 0] = self.__normalize__(X[..., 0], means, stds)
+            validation_X[..., 0] = self.__normalize__(validation_X[..., 0], means, stds)
+        else:
+            X = self.__normalize__(X, means, stds)
+            validation_X = self.__normalize__(validation_X, means, stds)
 
         # Here we prepare the Noise2Void data. Our input is the noisy data X and as target we take X concatenated with
         # a masking channel. The N2V_DataWrapper will take care of the pixel masking and manipulating.
@@ -342,7 +351,8 @@ class N2V(CARE):
     def __denormalize__(self, data, means, stds):
         return (data * stds) + means
 
-    def predict(self, img, axes, resizer=PadAndCropResizer(), n_tiles=None, tta=False):
+    # Write own code that tiles patches and uses scheme
+    def predict(self, img, axes, resizer=PadAndCropResizer(), n_tiles=None, tta=False, n2p=False):
         """
         Apply the network to sofar unseen data. This method expects the raw data, i.e. not normalized.
         During prediction the mean and standard deviation, stored with the model (during data generation), are used
@@ -359,6 +369,8 @@ class N2V(CARE):
                   Number of tiles to tile the image into, if it is too large for memory.
         tta     : bool
                   Use test-time augmentation during prediction.
+        n2p     : bool
+                  Whether to add a weight layer for N2P
 
         Returns
         -------
@@ -378,24 +390,40 @@ class N2V(CARE):
             new_axes = axes.replace('C', '') + 'C'
             if n_tiles:
                 new_n_tiles = tuple([n_tiles[axes.index(c)] for c in axes if c != 'C']) + (n_tiles[axes.index('C')],)
-            normalized = self.__normalize__(np.moveaxis(img, axes.index('C'), -1), means, stds)
+            if n2p:
+                normalized = self.__normalize__(img, means, stds)
+            else:
+                normalized = self.__normalize__(np.moveaxis(img, axes.index('C'), -1), means, stds)
         else:
             normalized = self.__normalize__(img[..., np.newaxis], means, stds)
+            # normalized = self.__normalize__(img, means, stds) # Assumes you already added newaxis
             normalized = normalized[..., 0]
 
         if tta:
             aug = tta_forward(normalized)
             preds = []
             for img in aug:
+                if n2p:
+                    img = img[..., np.newaxis]
+                    weight_channel = np.zeros(img.shape, dtype=np.float32)
+                    img = np.concatenate((img, weight_channel), axis = len(img.shape)-1)
                 preds.append(self._predict_mean_and_scale(img, axes=new_axes, normalizer=None, resizer=resizer,
                                              n_tiles=new_n_tiles)[0])
             pred = tta_backward(preds)
         else:
+            if n2p:
+                normalized = normalized[..., np.newaxis]
+                weight_channel = np.zeros(normalized.shape, dtype=np.float32)
+                normalized = np.concatenate((normalized, weight_channel), axis = len(normalized.shape)-1)
             pred = \
                 self._predict_mean_and_scale(normalized, axes=new_axes, normalizer=None, resizer=resizer,
                                              n_tiles=new_n_tiles)[0]
 
-        pred = self.__denormalize__(pred, means, stds)
+        # MAKE SURE THIS LINE WORKS
+        if n2p:
+            pred[..., 0] = self.__denormalize__(pred[..., 0], means, stds)
+        else:
+            pred = self.__denormalize__(pred, means, stds)
 
         if 'C' in axes:
             pred = np.moveaxis(pred, -1, axes.index('C'))

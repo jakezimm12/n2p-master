@@ -1,4 +1,5 @@
 import argparse
+from n2v.models import n2p_config
 
 import tensorflow.keras.backend as K
 
@@ -83,8 +84,17 @@ class N2VConfig(argparse.Namespace):
             n_channel_in = X.shape[-1]
             n_channel_out = n_channel_in
 
+            # MIGHT NEED TO CHANGE TO BELOW OR FIGURE OUT WAY TO NOT PREDICT WEIGHT CHANNEL
+            # if n2p_config:
+            #     n_channel_in = X.shape[-1]
+            #     n_channel_out = X.shape[-1] - 1 # Subtract 1 because we don't need to output the weight channel
+            # else:
+            #     n_channel_in = X.shape[-1]
+            #     n_channel_out = n_channel_in
+
+            # ASSUMES GREYSCALE
             means, stds = [], []
-            for i in range(n_channel_in):
+            for i in range(n_channel_in - 1 if n2p_config else n_channel_in):
                 means.append(np.mean(X[...,i]))
                 stds.append(np.std(X[...,i]))
 
