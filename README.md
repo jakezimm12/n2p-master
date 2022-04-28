@@ -1,5 +1,7 @@
 # Noise2Patch (N2P) - Self-Supervised Learning Technique for Denoising With Limited Data
 
+## Abstract
+
 Discriminative deep learning models have dominated the world of computer vision for a generation. Neural networks serve as a basis for tasks like denoising,
 super-resolution, inpainting, image-dehazing, watermark-removal, and much more.
 However, these neural networks require great deals of data to work. Acquiring images can often be tedious, expensive, or even impossible. For example, the limitation
@@ -19,6 +21,8 @@ N2P predicts one entire censored patch from many random patches from the input
 image during training. Each random patch has an associated weight based on its
 color and distance from the censored patch. A color and position more similar to
 the censored patch results in a higher weight.
+
+## General Overview of Procedure
 
 N2P compiles many subpatches into a large patch. One possible structure is a
 9 × 9 grid. The "censored," central subpatch outlined in blue is the target patch
